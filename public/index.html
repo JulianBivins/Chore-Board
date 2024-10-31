@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chore List</title>
+    <link href="/src/output.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="">
+        <div class="instruction-text">
+            <button class="listener-btn hover:text-gray-300" id="addBtn">A: To add a chore to the list</button>
+            <br>
+            <button class="listener-btn hover:text-gray-300" id="updateBtn">B: To update a chore based on its
+                index</button>
+            <br>
+            <button class="listener-btn hover:text-gray-300" id="deleteBtn">C: To delete a chore based on its
+                index</button>
+            <br>
+            <!-- <button class="listener-btn" id="moveBtn">D: To move a chore up or down the priority list</button> -->
+        </div>
+        <form id="inputForm" class="form-container">
+            <div class="form-input">
+                <input class="input-field" type="text" name="choreInput" id="choreInput"
+                    placeholder="Input the chore please" required>
+                <button><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        class="bi bi-arrow-up-circle form-icon" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707z" />
+                    </svg></button>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btns = document.querySelectorAll('.listener-btn');
+            btns.forEach(btn => btn.addEventListener('click', () => addClass(btn)));
+
+            document.getElementById('inputForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitChore();
+            });
+        });
+
+        function addClass(btn) {
+            const inputForm = document.getElementById('inputForm');
+            inputForm.className = 'form-container';
+            const inputField = document.getElementById('choreInput');
+            inputField.value = '';
+            // inputField.classList.remove('text-gray-400');
+            document.querySelectorAll('.listener-btn').forEach(button => button.classList.remove('text-gray-400'));
+
+            switch (btn.id) {
+                case 'addBtn':
+                    inputForm.classList.add('addBtn');
+                    inputField.value = "A: ";
+                    // btn.classList.add('text-gray-400');
+                    break;
+                case 'updateBtn':
+                    inputForm.classList.add('updateBtn');
+                    inputField.value = "B: ";
+                    // btn.classList.add('text-gray-400');
+                    break;
+                case 'deleteBtn':
+                    inputForm.classList.add('deleteBtn');
+                    inputField.value = "C: ";
+                    // btn.classList.add('text-gray-400');
+                    break;
+                // case 'moveBtn':
+                //     inputForm.classList.add('moveBtn');
+                //     inputField.value = "D: ";
+                //     break;
+                default:
+                    console.log("Invalid button");
+            }
+            btn.classList.add('text-gray-400');
+
+        }
+
+
+        async function submitChore() {
+            const inputForm = document.getElementById('inputForm');
+            const inputField = document.getElementById('choreInput');
+            const inputValue = inputField.value.trim();
+
+
+
+            const matchA = inputValue.match(/^A:\s*(.+)$/);
+            const matchB = inputValue.match(/^B:\s*(\d+)\.\s*(.+)$/);
+            const matchC = inputValue.match(/^C:\s*(\d+)\.\s*$/);
+
+            // const match = inputValue.match(/^([A-D]):\s*(\d+)?(?:\.\s*(.+))?$/);
+            const prefix = inputValue.slice(0, 2);
+
+
+            // let url = 'http://localhost:8080/chores';
+            let url = 'http://192.168.0.191:8080/chores';
+            let method = 'POST';
+            let choreDescription;
+            let index;
+
+            if (inputForm.classList.contains('addBtn') && matchA) {
+                choreDescription = matchA[1].trim();
+                console.log("Captured description:", choreDescription);
+                if (!choreDescription) {
+                    alert("Please enter a description for the chore.");
+                    return;
+                }
+            } else if (inputForm.classList.contains('updateBtn') && matchB) { // Handling option B
+                index = parseInt(matchB[1], 10);
+                choreDescription = matchB[2].trim();
+                url += `/update/${index}`;
+                method = 'PUT';
+            }
+            else if (inputForm.classList.contains('deleteBtn') && matchC) { // Handling option C
+                index = parseInt(matchC[1], 10);
+                url += `/delete/${index}`;
+                method = 'DELETE';
+            }
+            else {
+                alert("Invalid input format. Use 'A: [chore description]', 'B: [index]. [chore description]', or 'C: [index].'");
+                return;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: method !== 'DELETE' ? JSON.stringify({ description: choreDescription }) : null
+                });
+
+                if (response.ok) {
+                    console.log(`${method} request successful`);
+                    if (method !== 'DELETE') {
+                        const data = await response.json();
+                        console.log("Response:", data);
+                    } else {
+                        console.log("No response body for DELETE");
+                    }
+                    inputForm.reset();
+                } else {
+                    console.log(`${method} request failed`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

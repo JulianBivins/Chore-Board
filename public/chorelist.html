@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChoreList</title>
+    <link href="/src/output.css" rel="stylesheet">
+</head>
+<body class="text-gray-300 h-screen flex items-center justify-center">
+    <ol id="choreList" class="list-decimal"></ol>
+    <script>
+        async function fetchChores() {
+            try {
+                // const response = await fetch('http://localhost:8080/chores/util'); 
+                const response = await fetch('http://192.168.0.191:8080/chores/util'); 
+                if (!response.ok) {
+                    console.error('Failed to fetch chores');
+                    return;
+                }
+                const chores = await response.json();
+                const choreList = document.getElementById('choreList');
+                choreList.innerHTML = '';
+
+                chores.forEach(chore => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('text-xl', 'mb-2');
+                    listItem.textContent = chore.description;
+                    choreList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchChores(); 
+            setInterval(fetchChores, 40000);
+        });
+    </script>
+</body>
+</html>

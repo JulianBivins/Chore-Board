@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply bg-gray-800/90 flex justify-center items-end h-screen;
+}
+
+.form-container {
+    @apply mb-8 w-full max-w-xs;
+}
+
+.form-input {
+    @apply border border-gray-400 rounded-full p-4 flex justify-center;
+}
+
+.form-icon {
+    @apply text-gray-400 w-7 hover:scale-105 active:scale-100;
+}
+
+.input-field {
+    @apply bg-transparent outline-none text-white w-full px-4;
+}
+
+.instruction-text {
+    @apply text-center text-gray-500 mb-4 
+}
