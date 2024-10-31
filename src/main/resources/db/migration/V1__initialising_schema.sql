@@ -1,0 +1,4 @@
+CREATE TABLE chores (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(255)
+);
